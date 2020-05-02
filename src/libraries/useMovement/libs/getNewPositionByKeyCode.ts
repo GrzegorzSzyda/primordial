@@ -1,4 +1,5 @@
 import { PositionT } from '../../../types/PositionT';
+import { checkCanStand } from './checkCanStand';
 import { checkIsKeyHandled } from './checkIsKeyHandled';
 import { getDirectionByKeyCode } from './getDirectionByKeyCode';
 import { getNewPosition } from './getNewPosition';
@@ -9,5 +10,8 @@ export const getNewPositionByKeyCode = (
 ): PositionT => {
     if (!checkIsKeyHandled(keyCode)) return prevPosition;
     const direction = getDirectionByKeyCode(keyCode);
-    return getNewPosition(prevPosition, direction);
+    const newPosition = getNewPosition(prevPosition, direction);
+    const canStand = checkCanStand(newPosition);
+    if (canStand) return getNewPosition(prevPosition, direction);
+    return prevPosition;
 };
