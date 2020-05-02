@@ -1,6 +1,6 @@
 import { faUser } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React, { FC } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import { UNIT } from '../../constants/scale';
 
@@ -9,13 +9,11 @@ type HeroPropsT = {
     y: number;
 };
 
-export const Hero: FC<HeroPropsT> = ({ x, y }) => {
-    return (
-        <Container style={{ left: `${UNIT * x}px`, top: `${UNIT * y}px` }}>
-            <FontAwesomeIcon icon={faUser} />
-        </Container>
-    );
-};
+export const Hero = ({ x, y }: HeroPropsT) => (
+    <Container style={{ left: `${UNIT * x}px`, top: `${UNIT * y}px` }}>
+        <FontAwesomeIcon icon={faUser} />
+    </Container>
+);
 
 const Container = styled.div`
     width: ${UNIT}px;

@@ -1,11 +1,10 @@
-import React, { FC } from 'react';
+import React, { memo } from 'react';
 import styled from 'styled-components';
 import { config } from '../../constants/map';
 import { UNIT } from '../../constants/scale';
 
-export const Map: FC = ({ children }) => (
+export const Map = memo(() => (
     <Container>
-        {children}
         {config.map((row, index) => (
             <Row key={index}>
                 {row.map((cell, i) => (
@@ -14,7 +13,7 @@ export const Map: FC = ({ children }) => (
             </Row>
         ))}
     </Container>
-);
+));
 
 const Container = styled.div`
     width: 100vw;
