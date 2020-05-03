@@ -1,20 +1,20 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect } from 'react';
+import styled from 'styled-components';
 import './App.css';
 import { Hero } from './components/Hero';
 import { Map } from './components/Map';
 import { useMovement } from './libraries/useMovement';
-import styled from 'styled-components';
 
 export const App = () => {
-    const INITIAL_POSITION = { x: 3, y: 5 };
+    const INITIAL_POSITION = { x: 5, y: 3 };
     const { position, handleMovement } = useMovement(INITIAL_POSITION);
 
     useEffect(() => {
         document.body.addEventListener('keydown', onHandleMovement);
     }, []);
 
-    const onHandleMovement = (event: KeyboardEvent) => {
+    const onHandleMovement = (event: KeyboardEvent): void => {
         const keyCode = event.keyCode;
         handleMovement(keyCode);
     };
