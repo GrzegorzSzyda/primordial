@@ -1,4 +1,1 @@
-export type PositionT = {
-    x: number;
-    y: number;
-};
+export type PositionT = [number, number];
