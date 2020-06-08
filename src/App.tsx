@@ -4,48 +4,16 @@ import styled from 'styled-components';
 import { Backpack } from './components/Backpack';
 import { Hero } from './components/Hero';
 import { Map } from './components/Map';
-import { getItemsByPosition } from './libraries/getItemsByPosition';
+import { Direction, INITIAL_BACKPACK, INITIAL_POSITION } from './constants';
+import {
+    getItemsByPosition,
+    getKeyBindings,
+    getNewPosition,
+    pickUpItemFromMap,
+} from './libraries';
+import { putItemToBackpack } from './libraries/putItemToBackpack';
 import { fetchConfig } from './services';
-import { PositionT } from './types';
-import { BackpackT } from './types/BackpackT';
-import { TileT } from './types/TileT';
-
-const INITIAL_BACKPACK: BackpackT = {
-    items: [],
-};
-
-enum Direction {
-    North = 'north',
-    West = 'west',
-    South = 'south',
-    East = 'east',
-}
-
-const getNewPosition = (direction: Direction, position: PositionT): PositionT => {
-    console.log(position[0], position[1]);
-    switch (direction) {
-        case Direction.North:
-            return [position[0], position[1] - 1];
-        case Direction.West:
-            return [position[0] - 1, position[1]];
-        case Direction.South:
-            return [position[0], position[1] + 1];
-        case Direction.East:
-            return [position[0] + 1, position[1]];
-    }
-};
-const INITIAL_POSITION: PositionT = [0, 0];
-
-const getKeyBindings = (
-    onMovement: (direction: Direction) => void,
-    onPickUpItem: () => void,
-) => ({
-    w: () => onMovement(Direction.North),
-    a: () => onMovement(Direction.West),
-    s: () => onMovement(Direction.South),
-    d: () => onMovement(Direction.East),
-    e: () => onPickUpItem(),
-});
+import { BackpackT, PositionT, TileT } from './types';
 
 export const App = () => {
     const [isLoading, setIsLoading] = useState(true);
@@ -54,10 +22,11 @@ export const App = () => {
     const [backpack, setBackpack] = useState<BackpackT>(INITIAL_BACKPACK);
 
     useEffect(() => {
-        document.body.addEventListener('keypress', (event) => {
-            const key = event.key;
-            onKeyPress(key);
-        });
+        document.body.addEventListener('keypress', onKeyPress);
+        return () => document.body.removeEventListener('keypress', onKeyPress);
+    }, [heroPosition, map]);
+
+    useEffect(() => {
         setIsLoading(true);
         fetchConfig().then((config) => {
             setMap(config.map);
@@ -68,26 +37,16 @@ export const App = () => {
     const onPickUpItem = () => {
         const items = getItemsByPosition(map, heroPosition);
         if (!items.length) return;
-        setBackpack((backpack) => ({
-            ...backpack,
-            items: [...backpack.items, ...items],
-        }));
-        setMap((map) =>
-            map.map((tile) => {
-                const isRightPosition =
-                    tile.position[0] !== heroPosition[0] ||
-                    tile.position[1] !== heroPosition[1];
-                if (isRightPosition) return tile;
-                return { ...tile, items: [] };
-            }),
-        );
+        setBackpack((backpack) => putItemToBackpack(backpack, items));
+        setMap((map) => pickUpItemFromMap(map, heroPosition));
     };
 
     const onMovement = (direction: Direction) => {
         setHeroPosition((heroPosition) => getNewPosition(direction, heroPosition));
     };
 
-    const onKeyPress = (key: string) => {
+    const onKeyPress = (event: KeyboardEvent) => {
+        const key = event.key;
         if (key === 'w' || key === 'a' || key === 's' || key === 'd' || key === 'e') {
             getKeyBindings(onMovement, onPickUpItem)[key]();
         }
@@ -103,10 +62,18 @@ export const App = () => {
                 <Backpack backpack={backpack} />
             </BackpackWrapper>
             <DevTool>
-                <DevToolButton onClick={() => onKeyPress('w')}>W</DevToolButton>
-                <DevToolButton onClick={() => onKeyPress('a')}>A</DevToolButton>
-                <DevToolButton onClick={() => onKeyPress('s')}>S</DevToolButton>
-                <DevToolButton onClick={() => onKeyPress('d')}>D</DevToolButton>
+                <DevToolButton onClick={() => onKeyPress({ key: 'w' } as KeyboardEvent)}>
+                    W
+                </DevToolButton>
+                <DevToolButton onClick={() => onKeyPress({ key: 'a' } as KeyboardEvent)}>
+                    A
+                </DevToolButton>
+                <DevToolButton onClick={() => onKeyPress({ key: 's' } as KeyboardEvent)}>
+                    S
+                </DevToolButton>
+                <DevToolButton onClick={() => onKeyPress({ key: 'd' } as KeyboardEvent)}>
+                    D
+                </DevToolButton>
                 <DevToolButton onClick={onPickUpItem}>Pickup</DevToolButton>
             </DevTool>
         </Container>
