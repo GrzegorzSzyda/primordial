@@ -8,7 +8,7 @@ import { Direction, INITIAL_BACKPACK, INITIAL_POSITION } from './constants';
 import {
     getItemsByPosition,
     getKeyBindings,
-    getNewPosition,
+    movement,
     pickUpItemFromMap,
 } from './libraries';
 import { putItemToBackpack } from './libraries/putItemToBackpack';
@@ -42,7 +42,7 @@ export const App = () => {
     };
 
     const onMovement = (direction: Direction) => {
-        setHeroPosition((heroPosition) => getNewPosition(direction, heroPosition));
+        setHeroPosition((heroPosition) => movement(map, direction, heroPosition));
     };
 
     const onKeyPress = (event: KeyboardEvent) => {
